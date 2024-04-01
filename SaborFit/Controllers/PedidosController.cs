@@ -10,10 +10,11 @@ namespace SaborFit.Controllers
     public class PedidosController : ControllerBase
     {
         [HttpPost]
+        [Route("CadastrarPedido")]
         public IActionResult CadastrarPedido([FromBody] PedidoDTO pedido)
         {
             var dao = new PedidosDAO();
-            dao.Cadastrar(pedido); ;
+            dao.Cadastrar(pedido);
 
             return Ok();
         }
