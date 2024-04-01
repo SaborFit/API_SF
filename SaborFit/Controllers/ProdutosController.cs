@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SaborFit.DAOs;
 
@@ -6,6 +7,7 @@ namespace SaborFit.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProdutosController : ControllerBase
     {
         [HttpGet]
@@ -27,5 +29,6 @@ namespace SaborFit.Controllers
 
             return Ok(produtos);
         }
+
     }
 }

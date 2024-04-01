@@ -97,5 +97,37 @@ namespace SaborFit.DAOs
 
             return enderecos;
         }
+
+        public ClienteDTO Login(ClienteDTO cliente)
+        {
+            var conexao = ConnectionFactory.Build();
+            conexao.Open();
+
+            var query = "SELECT * FROM Clientes WHERE email = @email and senha = @senha";
+
+            var comando = new MySqlCommand(query, conexao);
+            comando.Parameters.AddWithValue("@email", cliente.Email);
+            comando.Parameters.AddWithValue("@senha", cliente.Senha);
+
+            var dataReader = comando.ExecuteReader();
+
+            cliente = new ClienteDTO();
+
+            while (dataReader.Read())
+            {
+                cliente.ID = int.Parse(dataReader["ID"].ToString());
+                cliente.Nome = dataReader["Nome"].ToString();
+                cliente.Sobrenome = dataReader["Sobrenome"].ToString();
+                cliente.Email = dataReader["Email"].ToString();
+                cliente.Telefone = dataReader["Telefone"].ToString();
+                cliente.CPF = dataReader["CPF"].ToString();
+                cliente.Senha = dataReader["Senha"].ToString();
+                cliente.Imagem = dataReader["Imagem"].ToString();
+                cliente.DataNascimento = DateTime.Parse(dataReader["DataNascimento"].ToString());
+            }
+            conexao.Close();
+
+            return cliente;
+        }
     }
 }
