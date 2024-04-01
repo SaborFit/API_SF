@@ -45,7 +45,7 @@ namespace SaborFit.DAOs
                 comando.Parameters.AddWithValue("@idPedido", pedido.Id);
                 comando.Parameters.AddWithValue("@idProduto", pedidoProduto.Id);
                 comando.Parameters.AddWithValue("@quantidade", pedidoProduto.Quantidade);
-
+                //test
                 comando.ExecuteNonQuery();
             }
 
