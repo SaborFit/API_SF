@@ -12,12 +12,12 @@ namespace SaborFit.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    
     public class ClientesController : ControllerBase
     {
         [HttpPost]
         [Route("CadastrarCliente")]
-        [AllowAnonymous]
+        
         public IActionResult CadastrarCliente([FromBody] ClienteDTO cliente)
         {
             var dao = new ClientesDAO();
@@ -45,7 +45,7 @@ namespace SaborFit.Controllers
 
         [HttpPost]
         [Route("Login")]
-        [AllowAnonymous]
+        
         public IActionResult Login([FromForm] ClienteDTO cliente)
         {
             var dao = new ClientesDAO();

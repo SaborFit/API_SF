@@ -47,7 +47,7 @@ namespace SaborFit.DAOs
             while (dataReader.Read())
             {
                 var produto = new ProdutoDTO();
-                produto.Id = int.Parse(dataReader["Id"].ToString());
+                produto.ID = int.Parse(dataReader["Id"].ToString());
                 produto.Nome = dataReader["Nome"].ToString();
                 produto.Tipo = dataReader["Tipo"].ToString();
                 produto.Descricao = dataReader["Descricao"].ToString();

@@ -2,7 +2,7 @@
 {
     public class EnderecoDTO
     {
-        public int Id { get; set; }
+        public int ID { get; set; }
         public string Titulo { get; set; }
         public string Endereco { get; set; }
         public string Numero { get; set; }

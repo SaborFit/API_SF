@@ -1,7 +1,7 @@
--- drop database SaborFit ----
 DROP DATABASE if EXISTS SaborFit;
 
 CREATE DATABASE SaborFit;
+
 USE SaborFit;
 
 CREATE TABLE Clientes (
@@ -94,7 +94,10 @@ CREATE TABLE Favoritos (
 	FOREIGN KEY (idUser) REFERENCES Clientes (id),
 	FOREIGN KEY (idProduto) REFERENCES Produtos (id)
 );
-
+CREATE TABLE StatusPedido (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR (64)
+);
 CREATE TABLE Pedidos (
 	id INT PRIMARY KEY AUTO_INCREMENT,
 	idUser INT,
@@ -102,9 +105,10 @@ CREATE TABLE Pedidos (
 	cpf VARCHAR (11),
 	valorTotal DOUBLE,
 	idEndereco INT,
-    status varchar (50),
+    idStatus INT,
 	idRestaurante INT,
 	cnpj VARCHAR (15),
+	FOREIGN KEY (idStatus) REFERENCES StatusPedido (id),
 	FOREIGN KEY (idUser) REFERENCES Clientes (id),
     FOREIGN KEY (idEndereco) REFERENCES Enderecos (id),
 	FOREIGN KEY (idRestaurante) REFERENCES Restaurantes (id)
@@ -118,29 +122,37 @@ CREATE TABLE PedidoProduto (
 	FOREIGN KEY (idProduto) REFERENCES Produtos (id)
 );
 
-INSERT INTO Marcadores (nome) VALUES ("Sem Lactose");
-INSERT INTO Marcadores (nome) VALUES ("Sem Glúten");
-INSERT INTO Marcadores (nome) VALUES ("Orgânico");
-INSERT INTO Marcadores (nome) VALUES ("Vegetariano");
-INSERT INTO Marcadores (nome) VALUES ("Vegano");
-
 -- SELECT * FROM Marcadores; ----
+-- select * from Produtos inner join Categorias where Produtos.categoria = Categorias.id; --
 
-Select * FROM CLIENTES;
+-- Inserindo dados na tabela Clientes
+INSERT INTO Clientes (nome, sobrenome, email, telefone, DataNascimento, cpf, senha, imagem) 
+VALUES ('João', 'Silva', 'joao@example.com', '(11) 91234-5678', '1990-05-15', '12345678901', 'senha123', 'joao.jpg');
 
--- SELECT * FROM Marcadores; ----
-select * from Produtos inner join Categorias where Produtos.categoria = Categorias.id;
+-- Inserindo dados na tabela Enderecos
+INSERT INTO Enderecos (titulo, endereco, numero, bairro, cidade, uf, cep, complemento, idUser) 
+VALUES ('Casa', 'Rua das Flores', '123', 'Centro', 'São Paulo', 'SP', '12345678', 'Apto 101', 1);
 
-INSERT INTO Categorias (nome) VALUES ('Suco');
-INSERT INTO Categorias (nome) VALUES ('Lanche Natural');
+-- Inserindo dados na tabela Restaurantes
+INSERT INTO Restaurantes (nome, cnpj, endereco, numero, bairro, cidade, uf, cep, complemento, imagem, email, telefone, especialidade, razaoSocial, banco, agencia, conta)
+VALUES ('Restaurante Teste', '12345678901234', 'Av. das Árvores', '456', 'Centro', 'São Paulo', 'SP', '12345678', 'Loja 2', 'restaurante.jpg', 'restaurante@example.com', '(11) 98765-4321', 'Gastronomia', 'Empresa Teste', 'Banco X', '1234', '56789');
 
+-- Inserindo dados na tabela Categorias
+INSERT INTO Categorias (nome) VALUES ('Bebidas'), ('Pratos Principais'), ('Sobremesas');
 
-select * from  Categorias;
+-- Inserindo dados na tabela Produtos
+INSERT INTO Produtos (nome, tipo, descricao, ingredientes, categoria, preco, peso, quantidade, imagem, desconto, cnpj, idRestaurante)
+VALUES ('Refrigerante', 'Bebida', 'Refrigerante de cola', 'Água gaseificada, açúcar e aromatizantes', 1, 5.99, 500, 100, 'refrigerante.jpg', 0, '12345678901234', 1),
+       ('Pizza Margherita', 'Prato Principal', 'Pizza com molho de tomate, muçarela e manjericão', 'Farinha de trigo, molho de tomate, muçarela, manjericão', 2, 29.99, 800, 50, 'pizza.jpg', 0, '12345678901234', 1),
+       ('Mousse de Chocolate', 'Sobremesa', 'Mousse de chocolate meio amargo', 'Chocolate meio amargo, creme de leite, açúcar', 3, 12.99, 300, 20, 'mousse.jpg', 0, '12345678901234', 1);
 
+-- Inserindo dados na tabela Marcadores
+INSERT INTO Marcadores (nome) VALUES ('Sem lactose'), ('Sem glúten'), ('Orgânico'), ('Vegetariano'), ('Vegano');
 
+-- Inserindo dados na tabela MarcadorProduto (associando produtos aos marcadores)
+INSERT INTO MarcadorProduto (idProduto, idMarcador) VALUES (1, 1), (3, 2);
 
+-- Inserindo dados na tabela StatusPedido
+INSERT INTO StatusPedido (nome) VALUES ('Aguardando Pagamento'), ('Em preparo'), ('Aguardando entrega'), ('Entregue');
 
-INSERT INTO Produtos (nome, tipo, descricao, ingredientes, categoria, preco, peso, quantidade, desconto, cnpj, idRestaurante)
-VALUES ('Sanduíche Natural', 'Sanduíche', 'Um delicioso sanduíche preparado com ingredientes frescos e saudáveis.', 'Pão integral, peito de frango grelhado, alface, tomate, cenoura, maionese light', 
-(SELECT id FROM Categorias WHERE nome = 'Lanche Natural'), 9.99, 200, 10, 0, '12345678901234', 1);
-
+select*from pedidos;
