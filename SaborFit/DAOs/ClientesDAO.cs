@@ -11,7 +11,8 @@ namespace SaborFit.DAOs
             var conexao = ConnectionFactory.Build();
             conexao.Open();
 
-            var query = @"INSERT INTO Clientes (Nome, Sobrenome, Email, Telefone, DataNascimento, CPF, Senha, imagem) VALUES
+            var query = @"INSERT INTO Clientes (Nome, Sobrenome, Email, Telefone,
+                        DataNascimento, CPF, Senha, imagem) VALUES
 						(@nome, @sobrenome, @email,@telefone, @nascimento, @CPF, @senha, @imagem)";
 
             var comando = new MySqlCommand(query, conexao);
@@ -78,7 +79,7 @@ namespace SaborFit.DAOs
             while (dataReader.Read())
             {
                 var endereco = new EnderecoDTO();
-                endereco.Id = int.Parse(dataReader["Id"].ToString());
+                endereco.ID = int.Parse(dataReader["Id"].ToString());
                 endereco.Titulo = dataReader["Titulo"].ToString();
                 endereco.Endereco = dataReader["Endereco"].ToString();
                 endereco.Numero = dataReader["Numero"].ToString();
