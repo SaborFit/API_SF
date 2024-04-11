@@ -16,22 +16,29 @@ namespace SaborFit.Controllers
     public class ClientesController : ControllerBase
     {
         [HttpPost]
-        [Route("CadastrarCliente")]
-        
-        public IActionResult CadastrarCliente([FromBody] ClienteDTO cliente)
-        {
-            var dao = new ClientesDAO();
+ [Route("Login")]
+ [AllowAnonymous]
+ public IActionResult Login([FromForm] ClienteDTO cliente)
+ {
+     try
+     {
+         var dao = new ClientesDAO();
+         var clientelogado = dao.Login(cliente);
 
-            var ClienteExiste = dao.VerificarCliente(cliente);
-            if (ClienteExiste)
-            {
-                var mensagem = "Email já existe na base de dados";
-                return Conflict(mensagem);
-            }
-            dao.CadastrarCliente(cliente);
+         if (clientelogado.ID == null)
+         {
+             return Unauthorized("Senha inválida.");
+         }
 
-            return Ok();
-        }
+         var token = GenerateJwtToken(clientelogado);
+
+         return Ok(new { token });
+     }
+     catch (Exception ex)
+     {
+         return StatusCode(500, "Erro interno do servidor.");
+     }
+ }
 
         [HttpGet]
         [Route("listarEndereços")]
