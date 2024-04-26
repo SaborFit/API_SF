@@ -19,10 +19,12 @@ namespace SaborFit.DAOs
             comando.Parameters.AddWithValue("@nomeUsuario", pedido.NomeUsuario);
             comando.Parameters.AddWithValue("@nomecpf", pedido.CPF);
             comando.Parameters.AddWithValue("@valorTotal", pedido.ValorTotal);
+            comando.Parameters.AddWithValue("@idEndereco", pedido.endereco.ID);
+            comando.Parameters.AddWithValue("@status", pedido.Status);
             comando.Parameters.AddWithValue("@idRestaurante", pedido.restaurante.ID);
             comando.Parameters.AddWithValue("@cnpj", pedido.CNPJ);
 
-            pedido.Id = Convert.ToInt32(comando.ExecuteScalar());
+            pedido.ID = Convert.ToInt32(comando.ExecuteScalar());
 
             conexao.Close();
             
@@ -42,8 +44,8 @@ namespace SaborFit.DAOs
             foreach (var pedidoProduto in pedido.Produtos)
             {
                 var comando = new MySqlCommand(query, conexao);
-                comando.Parameters.AddWithValue("@idPedido", pedido.Id);
-                comando.Parameters.AddWithValue("@idProduto", pedidoProduto.Id);
+                comando.Parameters.AddWithValue("@idPedido", pedido.ID);
+                comando.Parameters.AddWithValue("@idProduto", pedidoProduto.ID);
                 comando.Parameters.AddWithValue("@quantidade", pedidoProduto.Quantidade);
                 //test
                 comando.ExecuteNonQuery();

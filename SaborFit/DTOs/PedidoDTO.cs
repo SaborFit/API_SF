@@ -2,8 +2,8 @@
 {
     public class PedidoDTO
     {
-        public int Id { get; set; }
-        public ClienteDTO ID { get; set; }
+        public int ID { get; set; }
+        public ClienteDTO cliente { get; set; }
         public string NomeUsuario { get; set; }
         public string CPF { get; set; }
         public double ValorTotal { get; set; }

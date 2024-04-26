@@ -20,12 +20,24 @@ namespace SaborFit.Controllers
             return Ok(categorias);
         }
 
+
+
         [HttpGet]
         [Route("listarProdutos")]
         public IActionResult ListarProdutos()
         {
             var dao = new ProdutosDAO();
             var produtos = dao.ListarProdutos();
+
+            return Ok(produtos);
+        }
+
+        [HttpGet]
+        [Route("listarProdutosCategoria")]
+        public IActionResult ListarProdutosPorCategoria(int idcategoria)
+        {
+            var dao = new ProdutosDAO();
+            var produtos = dao.ListarProdutosPorCategoria(idcategoria);
 
             return Ok(produtos);
         }

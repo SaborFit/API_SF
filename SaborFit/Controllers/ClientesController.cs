@@ -17,7 +17,7 @@ namespace SaborFit.Controllers
     {
         [HttpPost]
         [Route("CadastrarCliente")]
-        [AllowAnonymous]
+        
         public IActionResult CadastrarCliente([FromBody] ClienteDTO cliente)
         {
             var dao = new ClientesDAO();
@@ -33,34 +33,54 @@ namespace SaborFit.Controllers
             return Ok();
         }
 
-        [HttpGet]
-        [Route("listarEndereços")]
-        public IActionResult ListarEnderecos()
+
+        [HttpPost]
+        [Route("CadastrarEndereco")]
+        public IActionResult CadastrarEndereco([FromBody] EnderecoDTO endereco)
         {
+            var idCliente = int.Parse(HttpContext.User.FindFirstValue("id"));
             var dao = new ClientesDAO();
-            var enderecos = dao.ListarEnderecos();
+            dao.CadastrarEndereco(endereco);
+
+            return Ok("Endereço cadastrado com sucesso!");
+        }
+    
+
+        [HttpGet]
+        [Route("listarEndereçosPorID")]
+        public IActionResult ListarEnderecosPorId(int ID )
+        {
+
+            var dao = new ClientesDAO();
+            var enderecos = dao.ListarEnderecosPorId(ID);
 
             return Ok(enderecos);
         }
+      
+         [HttpPost]
+         [Route("Login")]
+         [AllowAnonymous]
+         public IActionResult Login([FromForm] ClienteDTO cliente)
+                {
+                    try
+                    {
+                        var dao = new ClientesDAO();
+                        var clientelogado = dao.Login(cliente);
 
-        [HttpPost]
-        [Route("Login")]
-        [AllowAnonymous]
-        public IActionResult Login([FromForm] ClienteDTO cliente)
-        {
-            var dao = new ClientesDAO();
-            var clientelogado = dao.Login(cliente);
+                        if (clientelogado.ID == null)
+                        {
+                            return Unauthorized("Email ou senha inválidos.");
+                        }
 
-            if (clientelogado.ID == 0)
-            {
-                return Unauthorized();
-            }
-            var token = GenerateJwtToken(clientelogado);
+                        var token = GenerateJwtToken(clientelogado);
 
-            return Ok(new { token });
-        }
-
-
+                        return Ok(new { token });
+                    }
+                    catch (Exception ex)
+                    {
+                        return StatusCode(500, "Erro interno do servidor.");
+                    }
+                }
         private string GenerateJwtToken(ClienteDTO cliente)
         {
             var secretKey = "PU8a9W4sv2opkqlOwmgsn3w3Innlc4D5";
