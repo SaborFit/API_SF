@@ -7,7 +7,6 @@ namespace SaborFit.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class ProdutosController : ControllerBase
     {
         [HttpGet]
@@ -19,7 +18,6 @@ namespace SaborFit.Controllers
 
             return Ok(categorias);
         }
-
 
 
         [HttpGet]

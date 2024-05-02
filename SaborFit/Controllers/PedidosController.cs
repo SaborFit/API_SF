@@ -15,9 +15,9 @@ namespace SaborFit.Controllers
         [Route("CadastrarPedido")]
         public IActionResult CadastrarPedido([FromBody] PedidoDTO pedido)
         {
-
             var idCliente = int.Parse(HttpContext.User.FindFirstValue("id"));
-            pedido.Status = "Aguardando pagamento";
+            pedido.cliente = new ClienteDTO() { ID = idCliente };
+
             var dao = new PedidosDAO();
             dao.Cadastrar(pedido);
 

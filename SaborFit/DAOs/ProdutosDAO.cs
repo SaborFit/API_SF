@@ -47,6 +47,7 @@ namespace SaborFit.DAOs
             while (dataReader.Read())
             {
                 var produto = new ProdutoDTO();
+
                 produto.ID = int.Parse(dataReader["ID"].ToString());
                 produto.Nome = dataReader["Nome"].ToString();
                 produto.Tipo = dataReader["Tipo"].ToString();
@@ -62,6 +63,9 @@ namespace SaborFit.DAOs
 
                 var restaurante = new RestauranteDTO();
                 restaurante.ID = int.Parse(dataReader["IdRestaurante"].ToString());
+                
+
+                produto.Restaurante = restaurante;
 
                 produtos.Add(produto);
             }
@@ -75,7 +79,10 @@ namespace SaborFit.DAOs
             var conexao = ConnectionFactory.Build();
             conexao.Open();
 
-            var query = "SELECT * FROM Produtos WHERE categoria = @idCategoria"; 
+            /*var query = "SELECT * FROM Produtos WHERE categoria = @idCategoria";*/
+
+            var query = "SELECT p.*, r.ID AS IdRestaurante FROM Produtos p INNER JOIN Restaurantes r " +
+                "ON p.IdRestaurante = r.ID WHERE p.categoria = @idCategoria";
 
             var comando = new MySqlCommand(query, conexao);
             comando.Parameters.AddWithValue("@idCategoria", idcategoria);
@@ -101,6 +108,8 @@ namespace SaborFit.DAOs
 
                 var restaurante = new RestauranteDTO();
                 restaurante.ID = int.Parse(dataReader["IdRestaurante"].ToString());
+
+                produto.Restaurante = restaurante;
 
                 produtos.Add(produto);
             }

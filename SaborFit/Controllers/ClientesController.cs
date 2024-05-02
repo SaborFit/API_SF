@@ -12,12 +12,12 @@ namespace SaborFit.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+
     public class ClientesController : ControllerBase
     {
         [HttpPost]
         [Route("CadastrarCliente")]
-        
+        [AllowAnonymous]
         public IActionResult CadastrarCliente([FromBody] ClienteDTO cliente)
         {
             var dao = new ClientesDAO();
@@ -36,19 +36,22 @@ namespace SaborFit.Controllers
 
         [HttpPost]
         [Route("CadastrarEndereco")]
+        
         public IActionResult CadastrarEndereco([FromBody] EnderecoDTO endereco)
         {
             var idCliente = int.Parse(HttpContext.User.FindFirstValue("id"));
+            endereco.cliente = new ClienteDTO() { ID = idCliente };
+
             var dao = new ClientesDAO();
             dao.CadastrarEndereco(endereco);
 
             return Ok("Endereço cadastrado com sucesso!");
         }
-    
+
 
         [HttpGet]
         [Route("listarEndereçosPorID")]
-        public IActionResult ListarEnderecosPorId(int ID )
+        public IActionResult ListarEnderecosPorId(int ID)
         {
 
             var dao = new ClientesDAO();
@@ -56,31 +59,32 @@ namespace SaborFit.Controllers
 
             return Ok(enderecos);
         }
-      
-         [HttpPost]
-         [Route("Login")]
-         [AllowAnonymous]
-         public IActionResult Login([FromForm] ClienteDTO cliente)
+
+        [HttpPost]
+        [Route("Login")]
+        [AllowAnonymous]
+        public IActionResult Login([FromForm] ClienteDTO cliente)
+        {
+            try
+            {
+                var dao = new ClientesDAO();
+                var clientelogado = dao.Login(cliente);
+
+                if (clientelogado.ID == 0)
                 {
-                    try
-                    {
-                        var dao = new ClientesDAO();
-                        var clientelogado = dao.Login(cliente);
-
-                        if (clientelogado.ID == null)
-                        {
-                            return Unauthorized("Email ou senha inválidos.");
-                        }
-
-                        var token = GenerateJwtToken(clientelogado);
-
-                        return Ok(new { token });
-                    }
-                    catch (Exception ex)
-                    {
-                        return StatusCode(500, "Erro interno do servidor.");
-                    }
+                    return Unauthorized("Senha inválida.");
                 }
+
+                var token = GenerateJwtToken(clientelogado);
+
+                return Ok(new { token });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Erro interno do servidor.");
+            }
+        }
+
         private string GenerateJwtToken(ClienteDTO cliente)
         {
             var secretKey = "PU8a9W4sv2opkqlOwmgsn3w3Innlc4D5";
@@ -103,5 +107,5 @@ namespace SaborFit.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-     }
+    }
 }
