@@ -31,8 +31,8 @@ namespace SaborFit.Controllers
         }
 
         [HttpGet]
-        [Route("listarProdutosCategoria")]
-        public IActionResult ListarProdutosPorCategoria(int idcategoria)
+        [Route("ListarProdutosCategoria/{idcategoria}")]
+        public IActionResult ListarProdutosPorCategoria([FromRoute]int idcategoria)
         {
             var dao = new ProdutosDAO();
             var produtos = dao.ListarProdutosPorCategoria(idcategoria);
