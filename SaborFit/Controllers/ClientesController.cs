@@ -12,7 +12,7 @@ namespace SaborFit.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
+    [Authorize]
     public class ClientesController : ControllerBase
     {
         [HttpPost]
@@ -50,14 +50,30 @@ namespace SaborFit.Controllers
 
 
         [HttpGet]
-        [Route("listarEndereçosPorID")]
-        public IActionResult ListarEnderecosPorId(int ID)
+        [Route("ListarEnderecosPorID")]
+        public IActionResult ListarEnderecosPorId()
         {
+            try
+            {
+                // Obter o ID do cliente a partir do token JWT
+                var idClienteClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID");
 
-            var dao = new ClientesDAO();
-            var enderecos = dao.ListarEnderecosPorId(ID);
+                if (idClienteClaim == null || !int.TryParse(idClienteClaim.Value, out int idCliente))
+                {
+                    return BadRequest("ID do cliente não encontrado no token.");
+                }
 
-            return Ok(enderecos);
+                // Usar o ID do cliente para buscar os endereços no banco de dados
+                var dao = new ClientesDAO();
+                var enderecos = dao.ListarEnderecosPorId(idCliente);
+
+                return Ok(enderecos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Erro interno do servidor.");
+            }
+
         }
 
         [HttpPost]

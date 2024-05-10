@@ -94,15 +94,15 @@ namespace SaborFit.DAOs
             return clientes.Count > 0;
         }
 
-        public List<EnderecoDTO> ListarEnderecosPorId(int ID)
+        public List<EnderecoDTO> ListarEnderecosPorId(int idcliente)
         {
             var conexao = ConnectionFactory.Build();
             conexao.Open();
 
-            var query = "SELECT*FROM Enderecos Where ID =@id";
+            var query = "SELECT*FROM Enderecos Where IDuser =@idcliente";
 
             var comando = new MySqlCommand(query, conexao);
-            comando.Parameters.AddWithValue("@id", ID);
+            comando.Parameters.AddWithValue("@idcliente", idcliente);
 
             var dataReader = comando.ExecuteReader();
 
