@@ -45,5 +45,35 @@ namespace SaborFit.DAOs
 
             return restaurantes;
         }
+        public List<RestauranteDTO> ListarRestaurantesAbertos()
+        {
+            var restaurantesAbertos = new List<RestauranteDTO>();
+            var conexao = ConnectionFactory.Build();
+            conexao.Open();
+
+            var query = @"
+                    SELECT r.ID, r.Nome, r.Imagem
+                    FROM Restaurantes r
+                    JOIN HorariosFuncionamento h ON r.ID = h.idRestaurante
+                    WHERE h.diaSemana = DAYOFWEEK(CURDATE()) - 1
+                    AND h.horarioAbertura <= CURTIME()
+                    AND h.horarioFechamento >= CURTIME();";
+
+            var comando = new MySqlCommand(query, conexao);
+            var dataReader = comando.ExecuteReader();
+
+            while (dataReader.Read())
+            {
+                var restaurante = new RestauranteDTO();
+                restaurante.ID = dataReader.GetInt32("ID");
+                restaurante.Nome = dataReader.GetString("Nome");
+                restaurante.Imagem = dataReader.GetString("Imagem");
+
+                restaurantesAbertos.Add(restaurante);
+            }
+            conexao.Close();
+
+            return restaurantesAbertos;
+        }
     }
 }

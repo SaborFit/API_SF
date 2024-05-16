@@ -34,6 +34,7 @@ namespace SaborFit.Controllers
         }
 
 
+
         [HttpPost]
         [Route("CadastrarEndereco")]
         
@@ -111,6 +112,7 @@ namespace SaborFit.Controllers
                 {
                     new Claim("ID", cliente.ID.ToString()),
                     new Claim("Email", cliente.Email),
+                    new Claim("Nome",cliente.Nome),
                 };
 
             var token = new JwtSecurityToken(

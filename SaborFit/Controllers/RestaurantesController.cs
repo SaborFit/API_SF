@@ -17,5 +17,21 @@ namespace SaborFit.Controllers
 
             return Ok(restaurantes);
         }
+
+        [HttpGet]
+        [Route("listarRestaurantesAbertos")]
+        public IActionResult ListarRestaurantesAbertos()
+        {
+            try
+            {
+                var dao = new RestaurantesDAO();
+                var restaurantesAbertos = dao.ListarRestaurantesAbertos();
+                return Ok(restaurantesAbertos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao listar restaurantes abertos: {ex.Message}");
+            }
+        }
     }
 }
