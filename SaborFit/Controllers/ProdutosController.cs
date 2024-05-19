@@ -10,7 +10,7 @@ namespace SaborFit.Controllers
     public class ProdutosController : ControllerBase
     {
         [HttpGet]
-        [Route("listarCategorias")]
+        [Route("ListarCategorias")]
         public IActionResult ListarCategorias()
         {
             var dao = new ProdutosDAO();
@@ -21,7 +21,7 @@ namespace SaborFit.Controllers
 
 
         [HttpGet]
-        [Route("listarProdutos")]
+        [Route("ListarProdutos")]
         public IActionResult ListarProdutos()
         {
             var dao = new ProdutosDAO();
@@ -40,5 +40,14 @@ namespace SaborFit.Controllers
             return Ok(produtos);
         }
 
+        [HttpGet]
+        [Route("ListarProdutosPorNome")]
+        public IActionResult ListarProdutosPorNome([FromQuery] string search)
+        {
+            var dao = new ProdutosDAO();
+            var produtos = dao.ListarProdutosPorNome(search);
+
+            return Ok(produtos);
+        }
     }
 }

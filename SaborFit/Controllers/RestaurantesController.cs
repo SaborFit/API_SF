@@ -19,7 +19,7 @@ namespace SaborFit.Controllers
         }
 
         [HttpGet]
-        [Route("listarRestaurantesAbertos")]
+        [Route("ListarRestaurantesAbertos")]
         public IActionResult ListarRestaurantesAbertos()
         {
             try

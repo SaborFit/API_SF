@@ -134,6 +134,41 @@ namespace SaborFit.DAOs
 
             conexao.Close();
         }
+        public List<ProdutoDTO> ListarProdutosPorNome( string Nome)
+        {
+            var conexao = ConnectionFactory.Build();
+            conexao.Open();
 
+            var query = "SELECT*FROM Produtos where Nome Like @nome";
+
+            var comando = new MySqlCommand(query, conexao);
+            comando.Parameters.AddWithValue("@nome", $"%{Nome}%");
+            var dataReader = comando.ExecuteReader();
+
+            var produtos = new List<ProdutoDTO>();
+
+            while (dataReader.Read())
+            {
+                var produto = new ProdutoDTO();
+
+                produto.ID = int.Parse(dataReader["ID"].ToString());
+                produto.Nome = dataReader["Nome"].ToString();
+                produto.Tipo = dataReader["Tipo"].ToString();
+                produto.Descricao = dataReader["Descricao"].ToString();
+                produto.Ingredientes = dataReader["Ingredientes"].ToString();
+                produto.Categoria = int.Parse(dataReader["Categoria"].ToString());
+                produto.Preco = double.Parse(dataReader["Preco"].ToString());
+                produto.Peso = double.Parse(dataReader["Peso"].ToString());
+                produto.Quantidade = int.Parse(dataReader["Quantidade"].ToString());
+                produto.Imagem = dataReader["Imagem"].ToString();
+                produto.Desconto = double.Parse(dataReader["Desconto"].ToString());
+                produto.Cnpj = dataReader["Cnpj"].ToString();
+
+                produtos.Add(produto);
+            }
+            conexao.Close();
+
+            return produtos;
+        }
     }
 }
