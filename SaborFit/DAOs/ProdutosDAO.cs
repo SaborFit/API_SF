@@ -65,7 +65,7 @@ namespace SaborFit.DAOs
 
                 var restaurante = new RestauranteDTO();
                 restaurante.ID = int.Parse(dataReader["IdRestaurante"].ToString());
-                
+
 
                 produto.Restaurante = restaurante;
 
@@ -76,7 +76,50 @@ namespace SaborFit.DAOs
             return produtos;
         }
 
-        public List<ProdutoDTO> ListarProdutosPorCategoria( int idcategoria)
+        public List<ProdutoDTO> ListarProdutosPorID(int ID)
+        {
+            var conexao = ConnectionFactory.Build();
+            conexao.Open();
+
+            var query = "SELECT*FROM Produtos WHERE ID = @ID;";
+
+            var comando = new MySqlCommand(query, conexao);
+            comando.Parameters.AddWithValue("@ID", ID);
+            var dataReader = comando.ExecuteReader();
+
+            var produtos = new List<ProdutoDTO>();
+
+            while (dataReader.Read())
+            {
+                var produto = new ProdutoDTO();
+
+                produto.ID = int.Parse(dataReader["ID"].ToString());
+                produto.Nome = dataReader["Nome"].ToString();
+                produto.Tipo = dataReader["Tipo"].ToString();
+                produto.Descricao = dataReader["Descricao"].ToString();
+                produto.Ingredientes = dataReader["Ingredientes"].ToString();
+                produto.Categoria = int.Parse(dataReader["Categoria"].ToString());
+                produto.Preco = double.Parse(dataReader["Preco"].ToString());
+                produto.Peso = double.Parse(dataReader["Peso"].ToString());
+                produto.Quantidade = int.Parse(dataReader["Quantidade"].ToString());
+                produto.Imagem = dataReader["Imagem"].ToString();
+                produto.Desconto = double.Parse(dataReader["Desconto"].ToString());
+                produto.Cnpj = dataReader["Cnpj"].ToString();
+
+                var restaurante = new RestauranteDTO();
+                restaurante.ID = int.Parse(dataReader["IdRestaurante"].ToString());
+
+
+                produto.Restaurante = restaurante;
+
+                produtos.Add(produto);
+            }
+            conexao.Close();
+
+            return produtos;
+        }
+
+        public List<ProdutoDTO> ListarProdutosPorCategoria(int idcategoria)
         {
             var conexao = ConnectionFactory.Build();
             conexao.Open();
@@ -134,7 +177,7 @@ namespace SaborFit.DAOs
 
             conexao.Close();
         }
-        public List<ProdutoDTO> ListarProdutosPorNome( string Nome)
+        public List<ProdutoDTO> ListarProdutosPorNome(string Nome)
         {
             var conexao = ConnectionFactory.Build();
             conexao.Open();
@@ -163,6 +206,47 @@ namespace SaborFit.DAOs
                 produto.Imagem = dataReader["Imagem"].ToString();
                 produto.Desconto = double.Parse(dataReader["Desconto"].ToString());
                 produto.Cnpj = dataReader["Cnpj"].ToString();
+
+                produtos.Add(produto);
+            }
+            conexao.Close();
+
+            return produtos;
+        }
+
+        public List<ProdutoDTO> ListarProdutosPorRestaurante(int idrestaurante)
+        {
+            var conexao = ConnectionFactory.Build();
+            conexao.Open();
+
+            var query = "SELECT * FROM Produtos WHERE IdRestaurante = @idRestaurante";
+
+            var comando = new MySqlCommand(query, conexao);
+            comando.Parameters.AddWithValue("@idRestaurante", idrestaurante);
+            var dataReader = comando.ExecuteReader();
+
+            var produtos = new List<ProdutoDTO>();
+
+            while (dataReader.Read())
+            {
+                var produto = new ProdutoDTO();
+                produto.ID = int.Parse(dataReader["ID"].ToString());
+                produto.Nome = dataReader["Nome"].ToString();
+                produto.Tipo = dataReader["Tipo"].ToString();
+                produto.Descricao = dataReader["Descricao"].ToString();
+                produto.Ingredientes = dataReader["Ingredientes"].ToString();
+                produto.Categoria = int.Parse(dataReader["Categoria"].ToString());
+                produto.Preco = double.Parse(dataReader["Preco"].ToString());
+                produto.Peso = double.Parse(dataReader["Peso"].ToString());
+                produto.Quantidade = int.Parse(dataReader["Quantidade"].ToString());
+                produto.Imagem = dataReader["Imagem"].ToString();
+                produto.Desconto = double.Parse(dataReader["Desconto"].ToString());
+                produto.Cnpj = dataReader["Cnpj"].ToString();
+
+                var restaurante = new RestauranteDTO();
+                restaurante.ID = int.Parse(dataReader["IdRestaurante"].ToString());
+
+                produto.Restaurante = restaurante;
 
                 produtos.Add(produto);
             }

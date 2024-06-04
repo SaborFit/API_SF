@@ -102,6 +102,41 @@ namespace SaborFit.Controllers
             }
         }
 
+
+        [HttpPut]
+        [Route("AtualizarCliente")]
+          public IActionResult AtualizarCliente([FromBody] ClienteDTO cliente)
+        {
+            try
+            {
+                var idClienteClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID");
+
+                if (idClienteClaim == null || !int.TryParse(idClienteClaim.Value, out int idCliente))
+                {
+                    return BadRequest("ID do cliente não encontrado no token.");
+                }
+
+                cliente.ID = idCliente;
+                var dao = new ClientesDAO();
+                var clienteExistente = dao.ObterClientePorId(idCliente);
+
+                if (clienteExistente == null)
+                {
+                    return NotFound("Cliente não encontrado.");
+                }
+
+                dao.AtualizarCliente(cliente);
+
+                return Ok("Dados atualizados com sucesso!");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Erro interno do servidor.");
+            }
+        }
+
+
+
         private string GenerateJwtToken(ClienteDTO cliente)
         {
             var secretKey = "PU8a9W4sv2opkqlOwmgsn3w3Innlc4D5";
@@ -113,7 +148,10 @@ namespace SaborFit.Controllers
                     new Claim("ID", cliente.ID.ToString()),
                     new Claim("Email", cliente.Email),
                     new Claim("Nome",cliente.Nome),
-                };
+                     new Claim("DataNascimento", cliente.DataNascimento?.ToString("yyyy-MM-dd") ?? string.Empty), // Converte o DateTime? para string
+                    new Claim("Telefone",cliente.Telefone),
+
+        };
 
             var token = new JwtSecurityToken(
                 "SaborFit", //Nome da sua api

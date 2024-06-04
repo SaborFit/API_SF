@@ -30,6 +30,17 @@ namespace SaborFit.Controllers
             return Ok(produtos);
         }
 
+
+        [HttpGet]
+        [Route("ListarProdutosPorID")]
+        public IActionResult ListarProdutosPorID(int ID)
+        {
+            var dao = new ProdutosDAO();
+            var produtos = dao.ListarProdutosPorID(ID);
+
+            return Ok(produtos);
+        }
+
         [HttpGet]
         [Route("ListarProdutosCategoria/{idcategoria}")]
         public IActionResult ListarProdutosPorCategoria([FromRoute]int idcategoria)
@@ -46,6 +57,16 @@ namespace SaborFit.Controllers
         {
             var dao = new ProdutosDAO();
             var produtos = dao.ListarProdutosPorNome(search);
+
+            return Ok(produtos);
+        }
+
+        [HttpGet]
+        [Route("ListarProdutosPorRestaurante/{idrestaurante}")]
+        public IActionResult ListarProdutosPorRestaurante([FromRoute] int idrestaurante)
+        {
+            var dao = new ProdutosDAO();
+            var produtos = dao.ListarProdutosPorRestaurante(idrestaurante);
 
             return Ok(produtos);
         }

@@ -9,7 +9,7 @@ namespace SaborFit.Controllers
     public class RestaurantesController : ControllerBase
     {
         [HttpGet]
-        [Route("listarRestaurantes")]
+        [Route("ListarRestaurantes")]
         public IActionResult ListarRestaurantes()
         {
             var dao = new RestaurantesDAO();
@@ -17,6 +17,19 @@ namespace SaborFit.Controllers
 
             return Ok(restaurantes);
         }
+
+
+        [HttpGet]
+        [Route("ListarRestaurantesPorID")]
+        public IActionResult ListarRestaurantesPorID( int ID)
+        {
+            var dao = new RestaurantesDAO();
+            var restaurantes = dao.ListarRestaurantesPorID(ID);
+
+            return Ok(restaurantes);
+        }
+
+
 
         [HttpGet]
         [Route("ListarRestaurantesAbertos")]

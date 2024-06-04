@@ -162,7 +162,7 @@ namespace SaborFit.DAOs
                 cliente.CPF = dataReader["CPF"].ToString();
                 cliente.Senha = dataReader["Senha"].ToString();
                 cliente.Imagem = dataReader["Imagem"].ToString();
-                var dataNascimento = dataReader["DataNascimento"].ToString();
+                var dataNascimento = dataReader["DataNascimento"].ToString();   
 
                 if (string.IsNullOrWhiteSpace(dataNascimento) is false)
                 {
@@ -173,5 +173,65 @@ namespace SaborFit.DAOs
 
             return cliente;
         }
+
+        public void AtualizarCliente(ClienteDTO cliente)
+        {
+            var conexao = ConnectionFactory.Build();
+            conexao.Open();
+
+            var query = @"UPDATE Clientes 
+                  SET Nome = @nome, Sobrenome = @sobrenome, Email = @email, 
+                      Telefone = @telefone, DataNascimento = @nascimento 
+                  WHERE ID = @id";
+
+            var comando = new MySqlCommand(query, conexao);
+            comando.Parameters.AddWithValue("@id", cliente.ID);
+            comando.Parameters.AddWithValue("@nome", cliente.Nome);
+            comando.Parameters.AddWithValue("@sobrenome", cliente.Sobrenome);
+            comando.Parameters.AddWithValue("@email", cliente.Email);
+            comando.Parameters.AddWithValue("@telefone", cliente.Telefone);
+            comando.Parameters.AddWithValue("@nascimento", cliente.DataNascimento);
+
+            comando.ExecuteNonQuery();
+            conexao.Close();
+        }
+
+        public ClienteDTO ObterClientePorId(int id)
+        {
+            var conexao = ConnectionFactory.Build();
+            conexao.Open();
+
+            var query = "SELECT * FROM Clientes WHERE ID = @id";
+
+            var comando = new MySqlCommand(query, conexao);
+            comando.Parameters.AddWithValue("@id", id);
+
+            var dataReader = comando.ExecuteReader();
+
+            ClienteDTO cliente = null;
+
+            while (dataReader.Read())
+            {
+                cliente = new ClienteDTO
+                {
+                    ID = int.Parse(dataReader["ID"].ToString()),
+                    Nome = dataReader["Nome"].ToString(),
+                    Sobrenome = dataReader["Sobrenome"].ToString(),
+                    Email = dataReader["Email"].ToString(),
+                    Telefone = dataReader["Telefone"].ToString(),
+                    CPF = dataReader["CPF"].ToString(),
+                    Senha = dataReader["Senha"].ToString(),
+                    Imagem = dataReader["Imagem"].ToString(),
+                    DataNascimento = string.IsNullOrWhiteSpace(dataReader["DataNascimento"].ToString())
+                        ? (DateTime?)null
+                        : DateTime.Parse(dataReader["DataNascimento"].ToString())
+                };
+            }
+
+            conexao.Close();
+
+            return cliente;
+        }
+
     }
 }
