@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using SaborFit.Azure;
 using SaborFit.DAOs;
 using SaborFit.DTOs;
 using System.IdentityModel.Tokens.Jwt;
@@ -22,22 +23,24 @@ namespace SaborFit.Controllers
         {
             var dao = new ClientesDAO();
 
-            var ClienteExiste = dao.VerificarCliente(cliente);
+            bool ClienteExiste = dao.VerificarCliente(cliente);
             if (ClienteExiste)
             {
                 var mensagem = "Email já existe na base de dados";
                 return Conflict(mensagem);
             }
+   
             dao.CadastrarCliente(cliente);
 
             return Ok();
+
         }
 
 
 
         [HttpPost]
         [Route("CadastrarEndereco")]
-        
+
         public IActionResult CadastrarEndereco([FromBody] EnderecoDTO endereco)
         {
             var idCliente = int.Parse(HttpContext.User.FindFirstValue("id"));
@@ -103,9 +106,34 @@ namespace SaborFit.Controllers
         }
 
 
+        [HttpGet]
+        [Route("PegarDados")]
+        public IActionResult PegarDados()
+        {
+            try
+            {
+                var idClienteClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID");
+
+                if (idClienteClaim == null || !int.TryParse(idClienteClaim.Value, out int idCliente))
+                {
+                    return BadRequest("ID do cliente não encontrado no token.");
+                }
+
+                var dao = new ClientesDAO();
+                var cliente = dao.ObterClientePorId(idCliente);
+
+                return Ok(cliente);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Erro interno do servidor.");
+            }
+        }
+
+
         [HttpPut]
         [Route("AtualizarCliente")]
-          public IActionResult AtualizarCliente([FromBody] ClienteDTO cliente)
+        public IActionResult AtualizarCliente([FromBody] ClienteDTO cliente)
         {
             try
             {
@@ -118,11 +146,11 @@ namespace SaborFit.Controllers
 
                 cliente.ID = idCliente;
                 var dao = new ClientesDAO();
-                var clienteExistente = dao.ObterClientePorId(idCliente);
 
-                if (clienteExistente == null)
+                if (cliente.Base64 is not null)
                 {
-                    return NotFound("Cliente não encontrado.");
+                    var azureBlobStorage = new AzureBlobStorage();
+                    cliente.Imagem = azureBlobStorage.UploadImage(cliente.Base64);
                 }
 
                 dao.AtualizarCliente(cliente);

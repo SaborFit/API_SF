@@ -11,5 +11,6 @@
         public string? CPF { get; set; }
         public string Senha { get; set; }
         public string? Imagem { get; set; }
+         public string? Base64 { get; set; }
     }
 }

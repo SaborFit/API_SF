@@ -12,8 +12,8 @@ namespace SaborFit.DAOs
             conexao.Open();
 
             var query = @"INSERT INTO Clientes (Nome, Sobrenome, Email, Telefone,
-                        DataNascimento, CPF, Senha, imagem) VALUES
-						(@nome, @sobrenome, @email,@telefone, @nascimento, @CPF, @senha, @imagem);
+                        DataNascimento, CPF, Senha, imagemurl) VALUES
+						(@nome, @sobrenome, @email,@telefone, @nascimento, @CPF, @senha, @imagemurl);
                         SELECT LAST_INSERT_ID();";
 
             var comando = new MySqlCommand(query, conexao);
@@ -24,7 +24,7 @@ namespace SaborFit.DAOs
             comando.Parameters.AddWithValue("@nascimento", cliente.DataNascimento);
             comando.Parameters.AddWithValue("@CPF", cliente.CPF);
             comando.Parameters.AddWithValue("@senha", cliente.Senha);
-            comando.Parameters.AddWithValue("@imagem", cliente.Imagem);
+            comando.Parameters.AddWithValue("@imagemurl", cliente.Imagem);
 
 
             comando.ExecuteNonQuery();
@@ -181,7 +181,8 @@ namespace SaborFit.DAOs
 
             var query = @"UPDATE Clientes 
                   SET Nome = @nome, Sobrenome = @sobrenome, Email = @email, 
-                      Telefone = @telefone, DataNascimento = @nascimento 
+                      Telefone = @telefone, DataNascimento = @nascimento,
+                      imagemurl=@img, Senha = @senha
                   WHERE ID = @id";
 
             var comando = new MySqlCommand(query, conexao);
@@ -191,6 +192,8 @@ namespace SaborFit.DAOs
             comando.Parameters.AddWithValue("@email", cliente.Email);
             comando.Parameters.AddWithValue("@telefone", cliente.Telefone);
             comando.Parameters.AddWithValue("@nascimento", cliente.DataNascimento);
+            comando.Parameters.AddWithValue("@img", cliente.Imagem);
+            comando.Parameters.AddWithValue("@senha", cliente.Senha);
 
             comando.ExecuteNonQuery();
             conexao.Close();

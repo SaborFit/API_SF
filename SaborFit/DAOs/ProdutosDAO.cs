@@ -81,7 +81,8 @@ namespace SaborFit.DAOs
             var conexao = ConnectionFactory.Build();
             conexao.Open();
 
-            var query = "SELECT*FROM Produtos WHERE ID = @ID;";
+            var query = "SELECT Produtos.*, Restaurantes.telefone FROM Produtos INNER JOIN Restaurantes " +
+                "ON Produtos.restaurante_id = Restaurantes.id";
 
             var comando = new MySqlCommand(query, conexao);
             comando.Parameters.AddWithValue("@ID", ID);
