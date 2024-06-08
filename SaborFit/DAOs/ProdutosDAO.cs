@@ -125,10 +125,21 @@ namespace SaborFit.DAOs
             var conexao = ConnectionFactory.Build();
             conexao.Open();
 
-            var query = "SELECT * FROM Produtos WHERE categoria = @idCategoria";
-
-            /*var query = "SELECT p.*, r.ID AS IdRestaurante FROM Produtos p INNER JOIN Restaurantes r " +
-                "ON p.IdRestaurante = r.ID WHERE p.categoria = @idCategoria";*/
+            var query = @"
+        SELECT 
+            p.*, 
+            GROUP_CONCAT(m.id) AS MarcadoresIDs,
+            GROUP_CONCAT(m.nome) AS MarcadoresNomes
+        FROM 
+            Produtos p
+        LEFT JOIN 
+            MarcadorProduto mp ON p.id = mp.idProduto
+        LEFT JOIN 
+            Marcadores m ON mp.idMarcador = m.id
+        WHERE 
+            p.categoria = @idCategoria
+        GROUP BY 
+            p.id";
 
             var comando = new MySqlCommand(query, conexao);
             comando.Parameters.AddWithValue("@idCategoria", idcategoria);
@@ -152,17 +163,32 @@ namespace SaborFit.DAOs
                 produto.Desconto = double.Parse(dataReader["Desconto"].ToString());
                 produto.Cnpj = dataReader["Cnpj"].ToString();
 
-                var restaurante = new RestauranteDTO();
-                restaurante.ID = int.Parse(dataReader["IdRestaurante"].ToString());
+                // Verifica se há marcadores associados ao produto
+                if (!dataReader.IsDBNull(dataReader.GetOrdinal("MarcadoresIDs")))
+                {
+                    var marcadorIDs = dataReader["MarcadoresIDs"].ToString().Split(',');
+                    var marcadorNomes = dataReader["MarcadoresNomes"].ToString().Split(',');
 
-                produto.Restaurante = restaurante;
+                    for (int i = 0; i < marcadorIDs.Length; i++)
+                    {
+                        var marcador = new MarcadorDTO
+                        {
+                            ID = int.Parse(marcadorIDs[i]),
+                            Nome = marcadorNomes[i]
+                        };
+
+                        produto.Marcadores.Add(marcador);
+                    }
+                }
 
                 produtos.Add(produto);
             }
+
             conexao.Close();
 
             return produtos;
         }
+
 
         internal void AtualizarPedido(int status, int pedido)
         {
@@ -183,7 +209,8 @@ namespace SaborFit.DAOs
             var conexao = ConnectionFactory.Build();
             conexao.Open();
 
-            var query = @" SELECT p.*, GROUP_CONCAT(m.id) AS MarcadoresIDs,GROUP_CONCAT(m.nome) AS NomesMarcadores
+            var query = @" SELECT p.*, GROUP_CONCAT(m.id) AS MarcadoresIDs,GROUP_CONCAT(m.nome) 
+            AS NomesMarcadores
             FROM Produtos p 
             LEFT JOIN MarcadorProduto mp ON p.id = mp.idProduto
             LEFT JOIN Marcadores m ON mp.idMarcador = m.id
