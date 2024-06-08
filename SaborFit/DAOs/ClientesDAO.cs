@@ -12,7 +12,7 @@ namespace SaborFit.DAOs
             conexao.Open();
 
             var query = @"INSERT INTO Clientes (Nome, Sobrenome, Email, Telefone,
-                        DataNascimento, CPF, Senha, imagemurl) VALUES
+                        DataNascimento, CPF, Senha, Imagem) VALUES
 						(@nome, @sobrenome, @email,@telefone, @nascimento, @CPF, @senha, @imagemurl);
                         SELECT LAST_INSERT_ID();";
 
@@ -182,7 +182,7 @@ namespace SaborFit.DAOs
             var query = @"UPDATE Clientes 
                   SET Nome = @nome, Sobrenome = @sobrenome, Email = @email, 
                       Telefone = @telefone, DataNascimento = @nascimento,
-                      imagemurl=@img, Senha = @senha
+                      Imagem=@img, Senha = @senha
                   WHERE ID = @id";
 
             var comando = new MySqlCommand(query, conexao);
