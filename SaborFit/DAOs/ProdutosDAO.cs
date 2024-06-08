@@ -178,12 +178,17 @@ namespace SaborFit.DAOs
 
             conexao.Close();
         }
-        public List<ProdutoDTO> ListarProdutosPorNome(string Nome)
+          public List<ProdutoDTO> ListarProdutosPorNome(string Nome)
         {
             var conexao = ConnectionFactory.Build();
             conexao.Open();
 
-            var query = "SELECT*FROM Produtos where Nome Like @nome";
+            var query = @" SELECT p.*, GROUP_CONCAT(m.id) AS MarcadoresIDs,GROUP_CONCAT(m.nome) AS NomesMarcadores
+            FROM Produtos p 
+            LEFT JOIN MarcadorProduto mp ON p.id = mp.idProduto
+            LEFT JOIN Marcadores m ON mp.idMarcador = m.id
+            WHERE p.nome LIKE @nome
+            GROUP BY p.id";
 
             var comando = new MySqlCommand(query, conexao);
             comando.Parameters.AddWithValue("@nome", $"%{Nome}%");
@@ -193,27 +198,54 @@ namespace SaborFit.DAOs
 
             while (dataReader.Read())
             {
-                var produto = new ProdutoDTO();
+                var produtoId = int.Parse(dataReader["ID"].ToString());
+                var produto = produtos.FirstOrDefault(p => p.ID == produtoId);
 
-                produto.ID = int.Parse(dataReader["ID"].ToString());
-                produto.Nome = dataReader["Nome"].ToString();
-                produto.Tipo = dataReader["Tipo"].ToString();
-                produto.Descricao = dataReader["Descricao"].ToString();
-                produto.Ingredientes = dataReader["Ingredientes"].ToString();
-                produto.Categoria = int.Parse(dataReader["Categoria"].ToString());
-                produto.Preco = double.Parse(dataReader["Preco"].ToString());
-                produto.Peso = double.Parse(dataReader["Peso"].ToString());
-                produto.Quantidade = int.Parse(dataReader["Quantidade"].ToString());
-                produto.Imagem = dataReader["Imagem"].ToString();
-                produto.Desconto = double.Parse(dataReader["Desconto"].ToString());
-                produto.Cnpj = dataReader["Cnpj"].ToString();
+                if (produto == null)
+                {
+                    produto = new ProdutoDTO
+                    {
+                        ID = produtoId,
+                        Nome = dataReader["Nome"].ToString(),
+                        Tipo = dataReader["Tipo"].ToString(),
+                        Descricao = dataReader["Descricao"].ToString(),
+                        Ingredientes = dataReader["Ingredientes"].ToString(),
+                        Categoria = int.Parse(dataReader["Categoria"].ToString()),
+                        Preco = double.Parse(dataReader["Preco"].ToString()),
+                        Peso = double.Parse(dataReader["Peso"].ToString()),
+                        Quantidade = int.Parse(dataReader["Quantidade"].ToString()),
+                        Imagem = dataReader["Imagem"].ToString(),
+                        Desconto = double.Parse(dataReader["Desconto"].ToString()),
+                        Cnpj = dataReader["Cnpj"].ToString(),
+                        Marcadores = new List<MarcadorDTO>() // Inicializa a lista de marcadores
+                    };
 
-                produtos.Add(produto);
+                    produtos.Add(produto);
+                }
+
+                if (!dataReader.IsDBNull(dataReader.GetOrdinal("MarcadoresIDs")))
+                {
+                    var marcadoresIDs = dataReader["MarcadoresIDs"].ToString().Split(',');
+                    var nomesMarcadores = dataReader["NomesMarcadores"].ToString().Split(',');
+
+                    for (int i = 0; i < marcadoresIDs.Length; i++)
+                    {
+                        var marcador = new MarcadorDTO
+                        {
+                            ID = int.Parse(marcadoresIDs[i]),
+                            Nome = nomesMarcadores[i]
+                        };
+                        produto.Marcadores.Add(marcador);
+                    }
+                }
             }
-            conexao.Close();
 
+            conexao.Close();
             return produtos;
         }
+
+
+
 
         public List<ProdutoDTO> ListarProdutosPorRestaurante(int idrestaurante)
         {

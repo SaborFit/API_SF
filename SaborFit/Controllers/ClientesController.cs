@@ -176,7 +176,7 @@ namespace SaborFit.Controllers
                     new Claim("ID", cliente.ID.ToString()),
                     new Claim("Email", cliente.Email),
                     new Claim("Nome",cliente.Nome),
-                     new Claim("DataNascimento", cliente.DataNascimento?.ToString("yyyy-MM-dd") ?? string.Empty), // Converte o DateTime? para string
+                    new Claim("DataNascimento", cliente.DataNascimento?.ToString("yyyy-MM-dd") ?? string.Empty), // Converte o DateTime? para string
                     new Claim("Telefone",cliente.Telefone),
 
         };

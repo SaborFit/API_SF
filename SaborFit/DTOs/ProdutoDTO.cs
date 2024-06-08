@@ -15,5 +15,6 @@
         public double Desconto { get; set; }
         public string Cnpj { get; set; }
         public RestauranteDTO Restaurante  { get; set; }
+        public List<MarcadorDTO> Marcadores { get; set; } = new List<MarcadorDTO>(); // Lista de marcadores
     }
 }
