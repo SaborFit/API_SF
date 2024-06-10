@@ -96,7 +96,7 @@ namespace SaborFit.DAOs
             conexao.Open();
 
             var query = @"
-                    SELECT r.ID, r.Nome, r.Imagem
+                    SELECT r.ID, r.Nome, r.Imagem, r.especialidade
                     FROM Restaurantes r
                     JOIN HorariosFuncionamento h ON r.ID = h.idRestaurante
                     WHERE h.diaSemana = DAYOFWEEK(CURDATE()) - 1
@@ -112,6 +112,7 @@ namespace SaborFit.DAOs
                 restaurante.ID = dataReader.GetInt32("ID");
                 restaurante.Nome = dataReader.GetString("Nome");
                 restaurante.Imagem = dataReader.GetString("Imagem");
+                restaurante.Especialidade = dataReader.GetString("especialidade");
 
                 restaurantesAbertos.Add(restaurante);
             }
