@@ -126,20 +126,23 @@ namespace SaborFit.DAOs
             conexao.Open();
 
             var query = @"
-        SELECT 
-            p.*, 
-            GROUP_CONCAT(m.id) AS MarcadoresIDs,
-            GROUP_CONCAT(m.nome) AS MarcadoresNomes
-        FROM 
-            Produtos p
-        LEFT JOIN 
-            MarcadorProduto mp ON p.id = mp.idProduto
-        LEFT JOIN 
-            Marcadores m ON mp.idMarcador = m.id
-        WHERE 
-            p.categoria = @idCategoria
-        GROUP BY 
-            p.id";
+    SELECT 
+        p.*, 
+        r.nome AS NomeRestaurante,
+        GROUP_CONCAT(m.id) AS MarcadoresIDs,
+        GROUP_CONCAT(m.nome) AS MarcadoresNomes
+    FROM 
+        Produtos p
+    LEFT JOIN 
+        MarcadorProduto mp ON p.id = mp.idProduto
+    LEFT JOIN 
+        Marcadores m ON mp.idMarcador = m.id
+    LEFT JOIN 
+        Restaurantes r ON p.idRestaurante = r.id
+    WHERE 
+        p.categoria = @idCategoria
+    GROUP BY 
+        p.id";
 
             var comando = new MySqlCommand(query, conexao);
             comando.Parameters.AddWithValue("@idCategoria", idcategoria);
@@ -162,6 +165,12 @@ namespace SaborFit.DAOs
                 produto.Imagem = dataReader["Imagem"].ToString();
                 produto.Desconto = double.Parse(dataReader["Desconto"].ToString());
                 produto.Cnpj = dataReader["Cnpj"].ToString();
+
+                // Adiciona o nome do restaurante
+                produto.Restaurante = new RestauranteDTO
+                {
+                    Nome = dataReader["NomeRestaurante"].ToString()
+                };
 
                 // Verifica se há marcadores associados ao produto
                 if (!dataReader.IsDBNull(dataReader.GetOrdinal("MarcadoresIDs")))
@@ -190,6 +199,7 @@ namespace SaborFit.DAOs
         }
 
 
+
         internal void AtualizarPedido(int status, int pedido)
         {
 
@@ -204,18 +214,29 @@ namespace SaborFit.DAOs
 
             conexao.Close();
         }
-          public List<ProdutoDTO> ListarProdutosPorNome(string Nome)
+        public List<ProdutoDTO> ListarProdutosPorNome(string Nome)
         {
             var conexao = ConnectionFactory.Build();
             conexao.Open();
 
-            var query = @" SELECT p.*, GROUP_CONCAT(m.id) AS MarcadoresIDs,GROUP_CONCAT(m.nome) 
-            AS NomesMarcadores
-            FROM Produtos p 
-            LEFT JOIN MarcadorProduto mp ON p.id = mp.idProduto
-            LEFT JOIN Marcadores m ON mp.idMarcador = m.id
-            WHERE p.nome LIKE @nome
-            GROUP BY p.id";
+            var query = @"
+        SELECT 
+            p.*, 
+            r.Nome AS NomeRestaurante,
+            GROUP_CONCAT(m.id) AS MarcadoresIDs,
+            GROUP_CONCAT(m.nome) AS NomesMarcadores
+        FROM 
+            Produtos p 
+        LEFT JOIN 
+            MarcadorProduto mp ON p.id = mp.idProduto
+        LEFT JOIN 
+            Marcadores m ON mp.idMarcador = m.id
+        LEFT JOIN
+            Restaurantes r ON p.idRestaurante = r.id
+        WHERE 
+            p.nome LIKE @nome
+        GROUP BY 
+            p.id";
 
             var comando = new MySqlCommand(query, conexao);
             comando.Parameters.AddWithValue("@nome", $"%{Nome}%");
@@ -244,6 +265,10 @@ namespace SaborFit.DAOs
                         Imagem = dataReader["Imagem"].ToString(),
                         Desconto = double.Parse(dataReader["Desconto"].ToString()),
                         Cnpj = dataReader["Cnpj"].ToString(),
+                        Restaurante = new RestauranteDTO
+                        {
+                            Nome = dataReader["NomeRestaurante"].ToString()
+                        },
                         Marcadores = new List<MarcadorDTO>() // Inicializa a lista de marcadores
                     };
 
@@ -270,6 +295,7 @@ namespace SaborFit.DAOs
             conexao.Close();
             return produtos;
         }
+
 
 
 
