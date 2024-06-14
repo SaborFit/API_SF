@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using MySqlX.XDevAPI;
 using SaborFit.Azure;
 using SaborFit.DAOs;
 using SaborFit.DTOs;
@@ -29,7 +30,7 @@ namespace SaborFit.Controllers
                 var mensagem = "Email já existe na base de dados";
                 return Conflict(mensagem);
             }
-   
+
             dao.CadastrarCliente(cliente);
 
             return Ok();
@@ -79,6 +80,64 @@ namespace SaborFit.Controllers
             }
 
         }
+
+        [HttpGet]
+        [Route("ListarFavoritosCliente")]
+        public IActionResult ListarFavoritosPorId()
+        {
+            try
+            {
+                // Obter o ID do cliente a partir do token JWT
+                var idClienteClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID");
+
+                if (idClienteClaim == null || !int.TryParse(idClienteClaim.Value, out int idCliente))
+                {
+                    return BadRequest("ID do cliente não encontrado no token.");
+                }
+
+                var dao = new ClientesDAO();
+                var favoritos = dao.ListarFavoritosPorId(idCliente);
+
+                return Ok(favoritos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Erro interno do servidor.");
+            }
+
+        }
+
+        [HttpPost]
+        [Route("AdicionarFavorito")]
+        public IActionResult AdicionarFavorito([FromBody] FavoritoDTO favorito)
+        {
+            try
+            {
+                var dao = new ClientesDAO();
+                dao.AdicionarFavorito(favorito);
+
+                return Ok("Produto adicionado aos favoritos com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Erro interno do servidor.");
+            }
+        }
+
+        [HttpDelete]
+        [Route("RemoverFavorito")]
+        public IActionResult RemoverFavorito(FavoritoDTO favorito)
+        {
+            var dao = new ClientesDAO();
+            dao.RemoverFavorito(favorito);
+
+            return Ok();
+        }
+
+
+
+
+
 
         [HttpPost]
         [Route("Login")]

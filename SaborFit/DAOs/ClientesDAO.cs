@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Connections;
 using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI;
 using SaborFit.DTOs;
 
 namespace SaborFit.DAOs
@@ -236,5 +237,85 @@ namespace SaborFit.DAOs
             return cliente;
         }
 
+
+        public List<ProdutoDTO> ListarFavoritosPorId(int idCliente)
+        {
+            var conexao = ConnectionFactory.Build();
+            conexao.Open();
+
+            var query = @"
+                SELECT 
+                p.*
+                FROM 
+                    Produtos p
+                INNER JOIN 
+                    Favoritos f ON p.ID = f.IdProduto
+                WHERE 
+                    f.IdUser = @idCliente";
+
+            var comando = new MySqlCommand(query, conexao);
+            comando.Parameters.AddWithValue("@idCliente", idCliente);
+            var dataReader = comando.ExecuteReader();
+
+            var produtos = new List<ProdutoDTO>();
+
+            while (dataReader.Read())
+            {
+                var produto = new ProdutoDTO
+                {
+                    ID = int.Parse(dataReader["ID"].ToString()),
+                    Nome = dataReader["Nome"].ToString(),
+                    Tipo = dataReader["Tipo"].ToString(),
+                    Descricao = dataReader["Descricao"].ToString(),
+                    Ingredientes = dataReader["Ingredientes"].ToString(),
+                    Categoria = int.Parse(dataReader["Categoria"].ToString()),
+                    Preco = double.Parse(dataReader["Preco"].ToString()),
+                    Peso = double.Parse(dataReader["Peso"].ToString()),
+                    Quantidade = int.Parse(dataReader["Quantidade"].ToString()),
+                    Imagem = dataReader["Imagem"].ToString(),
+                    Desconto = double.Parse(dataReader["Desconto"].ToString()),
+                    Cnpj = dataReader["Cnpj"].ToString(),
+                    Restaurante = new RestauranteDTO
+                    {
+                        ID = int.Parse(dataReader["IdRestaurante"].ToString())
+                    }
+                };
+
+                produtos.Add(produto);
+            }
+            conexao.Close();
+
+            return produtos;
+        }
+
+        internal void AdicionarFavorito(FavoritoDTO favorito)
+        {
+            var conexao = ConnectionFactory.Build();
+            conexao.Open();
+
+            var query = @"INSERT INTO Favoritos (idUser, idProduto) VALUES (@user, @produto)";
+
+            var comando = new MySqlCommand(query, conexao);
+            comando.Parameters.AddWithValue("@user", favorito.IdUser);
+            comando.Parameters.AddWithValue("@produto", favorito.IdProduto);
+
+            comando.ExecuteNonQuery();
+            conexao.Close();
+        }
+
+        public void RemoverFavorito(FavoritoDTO favorito)
+        {
+            var conexao = ConnectionFactory.Build();
+            conexao.Open();
+
+            var query = @"DELETE FROM Favoritos WHERE IdUser = @idUser AND IdProduto = @idProduto";
+
+            var comando = new MySqlCommand(query, conexao);
+            comando.Parameters.AddWithValue("@idUser", favorito.IdUser);
+            comando.Parameters.AddWithValue("@idProduto", favorito.IdProduto);
+
+            comando.ExecuteNonQuery();
+            conexao.Close();
+        }
     }
 }
