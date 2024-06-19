@@ -108,13 +108,20 @@ namespace SaborFit.Controllers
         }
 
         [HttpPost]
-        [Route("AdicionarFavorito")]
-        public IActionResult AdicionarFavorito([FromBody] FavoritoDTO favorito)
+        [Route("AdicionarFavorito/{idProduto}")]
+        public IActionResult AdicionarFavorito([FromRoute]int idProduto)
         {
             try
             {
+                var idClienteClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID");
+
+                if (idClienteClaim == null || !int.TryParse(idClienteClaim.Value, out int idCliente))
+                {
+                    return BadRequest("ID do cliente não encontrado no token.");
+                }
+
                 var dao = new ClientesDAO();
-                dao.AdicionarFavorito(favorito);
+                dao.AdicionarFavorito(idCliente, idProduto);
 
                 return Ok("Produto adicionado aos favoritos com sucesso.");
             }
@@ -125,17 +132,30 @@ namespace SaborFit.Controllers
         }
 
         [HttpDelete]
-        [Route("RemoverFavorito")]
-        public IActionResult RemoverFavorito(FavoritoDTO favorito)
+        [Route("RemoverFavorito/{idProduto}")]
+        public IActionResult RemoverFavorito([FromRoute] int idProduto)
         {
+            var idClienteClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID");
+
+            if (idClienteClaim == null || !int.TryParse(idClienteClaim.Value, out int idCliente))
+            {
+                return BadRequest("ID do cliente não encontrado no token.");
+            }
             var dao = new ClientesDAO();
-            dao.RemoverFavorito(favorito);
+            dao.RemoverFavorito(idCliente, idProduto);
 
             return Ok();
         }
 
 
-
+        /*[HttpGet]
+        [Route("RecuperarSenha")]
+        public IActionResult RecuperarSenha(string email)
+        {
+            var dao = new ClientesDAO();
+            dao.RecuperarSenha(email);
+            return Ok();
+        }*/
 
 
 

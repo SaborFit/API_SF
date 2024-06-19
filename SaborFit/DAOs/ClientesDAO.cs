@@ -288,7 +288,7 @@ namespace SaborFit.DAOs
             return produtos;
         }
 
-        internal void AdicionarFavorito(FavoritoDTO favorito)
+        internal void AdicionarFavorito(int idCliente, int idProduto)
         {
             var conexao = ConnectionFactory.Build();
             conexao.Open();
@@ -296,14 +296,14 @@ namespace SaborFit.DAOs
             var query = @"INSERT INTO Favoritos (idUser, idProduto) VALUES (@user, @produto)";
 
             var comando = new MySqlCommand(query, conexao);
-            comando.Parameters.AddWithValue("@user", favorito.IdUser);
-            comando.Parameters.AddWithValue("@produto", favorito.IdProduto);
+            comando.Parameters.AddWithValue("@user", idCliente);
+            comando.Parameters.AddWithValue("@produto", idProduto);
 
             comando.ExecuteNonQuery();
             conexao.Close();
         }
 
-        public void RemoverFavorito(FavoritoDTO favorito)
+        public void RemoverFavorito(int idCliente, int idProduto)
         {
             var conexao = ConnectionFactory.Build();
             conexao.Open();
@@ -311,11 +311,52 @@ namespace SaborFit.DAOs
             var query = @"DELETE FROM Favoritos WHERE IdUser = @idUser AND IdProduto = @idProduto";
 
             var comando = new MySqlCommand(query, conexao);
-            comando.Parameters.AddWithValue("@idUser", favorito.IdUser);
-            comando.Parameters.AddWithValue("@idProduto", favorito.IdProduto);
+            comando.Parameters.AddWithValue("@idUser", idCliente);
+            comando.Parameters.AddWithValue("@idProduto", idProduto);
 
             comando.ExecuteNonQuery();
             conexao.Close();
         }
+
+       /* public string RecuperarSenha(string email)
+        {
+            string senha = null;
+
+            var conexao = ConnectionFactory.Build();
+            conexao.Open();
+
+            try
+            {
+                string query = @"select Senha from Clientes where Email = @email";
+
+                using (MySqlCommand comando = new MySqlCommand(query, conexao))
+                {
+                    //var comando = new MySqlCommand(query, conexao);
+                    comando.Parameters.AddWithValue("@email", email);
+
+                    using (MySqlDataReader reader = comando.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            senha = reader["Senha"].ToString();
+                        }
+                    }
+                }
+                return senha;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            finally
+            {
+                conexao.Close();
+            }
+        }
+        */
     }
+
+
 }
+
