@@ -78,47 +78,72 @@ namespace SaborFit.DAOs
 
         public List<ProdutoDTO> ListarProdutosPorID(int ID)
         {
-            var conexao = ConnectionFactory.Build();
-            conexao.Open();
-
-            var query = "SELECT Produtos.*, Restaurantes.telefone FROM Produtos INNER JOIN Restaurantes " +
-                "ON Produtos.restaurante_id = Restaurantes.id";
-
-            var comando = new MySqlCommand(query, conexao);
-            comando.Parameters.AddWithValue("@ID", ID);
-            var dataReader = comando.ExecuteReader();
-
             var produtos = new List<ProdutoDTO>();
 
-            while (dataReader.Read())
+            using (var conexao = ConnectionFactory.Build())
             {
-                var produto = new ProdutoDTO();
+                conexao.Open();
 
-                produto.ID = int.Parse(dataReader["ID"].ToString());
-                produto.Nome = dataReader["Nome"].ToString();
-                produto.Tipo = dataReader["Tipo"].ToString();
-                produto.Descricao = dataReader["Descricao"].ToString();
-                produto.Ingredientes = dataReader["Ingredientes"].ToString();
-                produto.Categoria = int.Parse(dataReader["Categoria"].ToString());
-                produto.Preco = double.Parse(dataReader["Preco"].ToString());
-                produto.Peso = double.Parse(dataReader["Peso"].ToString());
-                produto.Quantidade = int.Parse(dataReader["Quantidade"].ToString());
-                produto.Imagem = dataReader["Imagem"].ToString();
-                produto.Desconto = double.Parse(dataReader["Desconto"].ToString());
-                produto.Cnpj = dataReader["Cnpj"].ToString();
+                var query = @"
+                SELECT 
+                p.id AS ProdutoID, 
+                p.nome AS NomeProduto, 
+                p.tipo AS TipoProduto, 
+                p.descricao AS DescricaoProduto, 
+                p.ingredientes AS IngredientesProduto, 
+                p.categoria AS CategoriaID, 
+                p.preco AS PrecoProduto, 
+                p.peso AS PesoProduto, 
+                p.quantidade AS QuantidadeProduto, 
+                p.imagem AS ImagemProduto, 
+                p.desconto AS DescontoProduto, 
+                p.cnpj AS CnpjProduto, 
+                r.id AS RestauranteID, 
+                r.nome AS NomeRestaurante, 
+                r.telefone AS TelefoneRestaurante
+                FROM Produtos p
+                INNER JOIN Restaurantes r ON p.idRestaurante = r.id
+                WHERE p.id = @ProdutoID";
 
-                var restaurante = new RestauranteDTO();
-                restaurante.ID = int.Parse(dataReader["IdRestaurante"].ToString());
+                using (var comando = new MySqlCommand(query, conexao))
+                {
+                    comando.Parameters.AddWithValue("@ProdutoID", ID);
 
+                    using (var dataReader = comando.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var produto = new ProdutoDTO
+                            {
+                                ID = Convert.ToInt32(dataReader["ProdutoID"]),
+                                Nome = dataReader["NomeProduto"].ToString(),
+                                Tipo = dataReader["TipoProduto"].ToString(),
+                                Descricao = dataReader["DescricaoProduto"].ToString(),
+                                Ingredientes = dataReader["IngredientesProduto"].ToString(),
+                                Categoria = Convert.ToInt32(dataReader["CategoriaID"]),
+                                Preco = Convert.ToDouble(dataReader["PrecoProduto"]),
+                                Peso = Convert.ToDouble(dataReader["PesoProduto"]),
+                                Quantidade = Convert.ToInt32(dataReader["QuantidadeProduto"]),
+                                Imagem = dataReader["ImagemProduto"].ToString(),
+                                Desconto = Convert.ToDouble(dataReader["DescontoProduto"]),
+                                Cnpj = dataReader["CnpjProduto"].ToString(),
+                                Restaurante = new RestauranteDTO
+                                {
+                                    ID = Convert.ToInt32(dataReader["RestauranteID"]),
+                                    Nome = dataReader["NomeRestaurante"].ToString(),
+                                    Telefone = dataReader["TelefoneRestaurante"].ToString()
+                                }
+                            };
 
-                produto.Restaurante = restaurante;
-
-                produtos.Add(produto);
+                            produtos.Add(produto);
+                        }
+                    }
+                }
             }
-            conexao.Close();
 
             return produtos;
         }
+
 
         public List<ProdutoDTO> ListarProdutosPorCategoria(int idcategoria)
         {
@@ -126,23 +151,15 @@ namespace SaborFit.DAOs
             conexao.Open();
 
             var query = @"
-    SELECT 
-        p.*, 
-        r.nome AS NomeRestaurante,
-        GROUP_CONCAT(m.id) AS MarcadoresIDs,
-        GROUP_CONCAT(m.nome) AS MarcadoresNomes
-    FROM 
-        Produtos p
-    LEFT JOIN 
-        MarcadorProduto mp ON p.id = mp.idProduto
-    LEFT JOIN 
-        Marcadores m ON mp.idMarcador = m.id
-    LEFT JOIN 
-        Restaurantes r ON p.idRestaurante = r.id
-    WHERE 
-        p.categoria = @idCategoria
-    GROUP BY 
-        p.id";
+                SELECT p.*, r.nome AS NomeRestaurante,
+                GROUP_CONCAT(m.id) AS MarcadoresIDs,
+                GROUP_CONCAT(m.nome) AS MarcadoresNomes
+                FROM Produtos p
+                LEFT JOIN MarcadorProduto mp ON p.id = mp.idProduto
+                LEFT JOIN Marcadores m ON mp.idMarcador = m.id
+                LEFT JOIN Restaurantes r ON p.idRestaurante = r.id
+                WHERE p.categoria = @idCategoria
+                GROUP BY p.id";
 
             var comando = new MySqlCommand(query, conexao);
             comando.Parameters.AddWithValue("@idCategoria", idcategoria);
@@ -220,23 +237,18 @@ namespace SaborFit.DAOs
             conexao.Open();
 
             var query = @"
-        SELECT 
-            p.*, 
-            r.Nome AS NomeRestaurante,
-            GROUP_CONCAT(m.id) AS MarcadoresIDs,
-            GROUP_CONCAT(m.nome) AS NomesMarcadores
-        FROM 
-            Produtos p 
-        LEFT JOIN 
-            MarcadorProduto mp ON p.id = mp.idProduto
-        LEFT JOIN 
-            Marcadores m ON mp.idMarcador = m.id
-        LEFT JOIN
-            Restaurantes r ON p.idRestaurante = r.id
-        WHERE 
-            p.nome LIKE @nome
-        GROUP BY 
-            p.id";
+                SELECT 
+                p.*, 
+                r.id AS RestauranteID,
+                r.Nome AS NomeRestaurante,
+                GROUP_CONCAT(m.id) AS MarcadoresIDs,
+                GROUP_CONCAT(m.nome) AS NomesMarcadores
+                FROM Produtos p 
+                LEFT JOIN MarcadorProduto mp ON p.id = mp.idProduto
+                LEFT JOIN Marcadores m ON mp.idMarcador = m.id
+                LEFT JOIN Restaurantes r ON p.idRestaurante = r.id
+                WHERE p.nome LIKE @nome
+                GROUP BY p.id";
 
             var comando = new MySqlCommand(query, conexao);
             comando.Parameters.AddWithValue("@nome", $"%{Nome}%");
@@ -267,6 +279,7 @@ namespace SaborFit.DAOs
                         Cnpj = dataReader["Cnpj"].ToString(),
                         Restaurante = new RestauranteDTO
                         {
+                            ID = int.Parse(dataReader["RestauranteID"].ToString()),
                             Nome = dataReader["NomeRestaurante"].ToString()
                         },
                         Marcadores = new List<MarcadorDTO>() // Inicializa a lista de marcadores

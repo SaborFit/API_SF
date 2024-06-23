@@ -245,13 +245,13 @@ namespace SaborFit.DAOs
 
             var query = @"
                 SELECT 
-                p.*
-                FROM 
-                    Produtos p
-                INNER JOIN 
-                    Favoritos f ON p.ID = f.IdProduto
-                WHERE 
-                    f.IdUser = @idCliente";
+                p.*, 
+                r.Nome AS NomeRestaurante,
+                r.id AS IdRestaurante
+                FROM Produtos p
+                INNER JOIN Favoritos f ON p.ID = f.IdProduto
+                INNER JOIN Restaurantes r ON p.IdRestaurante = r.id
+                WHERE f.IdUser = @idCliente";
 
             var comando = new MySqlCommand(query, conexao);
             comando.Parameters.AddWithValue("@idCliente", idCliente);
@@ -277,7 +277,8 @@ namespace SaborFit.DAOs
                     Cnpj = dataReader["Cnpj"].ToString(),
                     Restaurante = new RestauranteDTO
                     {
-                        ID = int.Parse(dataReader["IdRestaurante"].ToString())
+                        ID = int.Parse(dataReader["IdRestaurante"].ToString()),
+                        Nome = dataReader["NomeRestaurante"].ToString()
                     }
                 };
 
